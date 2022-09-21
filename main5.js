@@ -81,7 +81,7 @@ class WmsLayer{
     addEvent(){
         this.map.on('singleclick', (evt) => {
             var viewResolution =  this.map.getView().getResolution()
-            console.log(this.wmsLayers[this.params.LAYERS].getSource().getGetFeatureInfo,"s")
+            console.log(this.wmsLayers[this.params.LAYERS].getSource().getGetFeatureInfo,"sss")
             var url =   this.wmsLayers[this.params.LAYERS].getSource().getGetFeatureInfoUrl(
                 evt.coordinate, viewResolution, 'EPSG:4326', { 'INFO_FORMAT': 'application/json'
                 })
