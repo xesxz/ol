@@ -9,7 +9,8 @@ import {
 const BASEMAP =   config.BASEMAP.map(item  => {
   return  new Tile({
     source: new XYZ({
-      url:item
+      url:item,
+      // projection:"EPSG:4326"
     }),
 
   });
