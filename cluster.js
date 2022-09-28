@@ -9,6 +9,7 @@ import VectorSource from 'ol/source/Vector'
 import { Cluster } from 'ol/source'
 import VectorLayer from 'ol/layer/Vector'
 import AnimatedCluster from 'ol-ext/layer/AnimatedCluster'
+import SelectCluster from 'ol-ext/interaction/SelectCluster'
 import { Circle, Fill, Stroke, Style, Icon, Text } from 'ol/style'
 import GeoJSON from 'ol/format/GeoJSON'
 
@@ -52,52 +53,11 @@ function addClusterLayer(data) {
     name: 'Cluster',
     source: clusterSource,
     style: getStyle,
-    animationDuration: 700,
+    animationDuration: 300,
   })
 
-  var styleCache = {}
-  function getStyle(feature, resolution) {
-    var size = feature.get('features').length
-    var style = styleCache[size]
-    if (!style) {
-      if (size === 1) {
-        style = styleCache[size] = new Style({
-          image: new Icon({
-            src: '/images/gas/cz_bj_1.png',
-            scale: 0.5,
-          }),
-        })
-      } else {
-        var color = size > 25 ? '192,0,0' : size > 8 ? '255,128,0' : '0,128,0'
-        var radius = Math.max(8, Math.min(size * 0.75, 20))
-        var dash = (2 * Math.PI * radius) / 6
-        var dash = [0, dash, dash, dash, dash, dash, dash]
-        style = styleCache[size] = new Style({
-          image: new Circle({
-            radius: radius,
-            stroke: new Stroke({
-              color: 'rgba(' + color + ',0.5)',
-              width: 15,
-              lineDash: dash,
-              lineCap: 'butt',
-            }),
-            fill: new Fill({
-              color: 'rgba(' + color + ',1)',
-            }),
-          }),
-          text: new Text({
-            text: size.toString(),
-            font: 'bold 12px comic sans ms',
-            // textBaseline: 'top',
-            fill: new Fill({
-              color: '#fff',
-            }),
-          }),
-        })
-      }
-    }
-    return style
-  }
+
+
 
   map.addLayer(clusters)
 }
@@ -105,36 +65,83 @@ function addClusterLayer(data) {
 axios.get('/data/GeoJSON/chemicalEnterprise.json').then((res) => {
   const data = res.data.data.entList
   addClusterLayer(data)
+  registerEvent()
 })
 
-function getIconStyle(name, feature, scale = 0.7) {
-  const properties = feature.getProperties()
-  let src = null
-  //化工企业
-  if (name === 'hgqy') {
-    switch (properties.ztfxdj) {
-      case '001':
-        src = `/images/gas/cz_bj_1.png`
-        break
-      case '002':
-        src = `/images/gas/cz_bj_2.png`
-        break
-      case '003':
-        src = `/images/gas/cz_bj_3.png`
-        break
-      case '004':
-        src = `/images/gas/cz_lljc.png`
-        break
-      default:
-        src = `/images/gas/cz_lljc.png`
-    }
-  }
-  let style = new Style({
+
+
+
+function registerEvent(){
+  const featureStyle = new Style({
     image: new Icon({
-      src,
-      scale: scale,
+      src: '/images/gas/cz_bj_1.png',
+      scale: 0.5,
     }),
+    stroke: new Stroke({
+      color:"cyan", 
+      width:1 
+    }) 
+
   })
 
+  var selectCluster = new SelectCluster({
+    pointRadius:15,
+    animate:true,
+    featureStyle: function(){
+      return [featureStyle]
+    },
+    style:function(feature){
+return getStyle(feature)
+    }
+  });
+  map.addInteraction(selectCluster);
+
+
+
+
+
+}
+
+var styleCache = {}
+function getStyle(feature, resolution) {
+  var size = feature.get('features').length
+  var style = styleCache[size]
+  if (!style) {
+    if (size === 1) {
+      style = styleCache[size] = new Style({
+        image: new Icon({
+          src: '/images/gas/cz_bj_1.png',
+          scale: 0.5,
+        }),
+      })
+    } else {
+      var color = size > 25 ? '192,0,0' : size > 8 ? '255,128,0' : '0,128,0'
+      var radius = Math.max(8, Math.min(size * 0.75, 20))
+      var dash = (2 * Math.PI * radius) / 6
+      var dash = [0, dash, dash, dash, dash, dash, dash]
+      style = styleCache[size] = new Style({
+        image: new Circle({
+          radius: radius,
+          stroke: new Stroke({
+            color: 'rgba(' + color + ',0.5)',
+            width: 15,
+            lineDash: dash,
+            lineCap: 'butt',
+          }),
+          fill: new Fill({
+            color: 'rgba(' + color + ',1)',
+          }),
+        }),
+        text: new Text({
+          text: size.toString(),
+          font: 'bold 12px comic sans ms',
+          // textBaseline: 'top',
+          fill: new Fill({
+            color: '#fff',
+          }),
+        }),
+      })
+    }
+  }
   return style
 }
