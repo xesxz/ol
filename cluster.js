@@ -34,18 +34,19 @@ const map = new Map({
 function addClusterLayer(data) {
   const features = data.map((item, i) => {
     // const feature = new Feature(new Point([item.longitude, item.latitude]))
-
-    const feature = new Feature(new Point([item.longitude, item.latitude]))
+// console.log(item.geometry.coordinates[1],"11")
+    const feature = new Feature(new Point([item.geometry.coordinates[0]
+      , item.geometry.coordinates[1]]))
     feature.set('id', i)
     //TODO
-    feature.setProperties(item)
+    // feature.setProperties(item)
     return feature
   })
   const source = new VectorSource({
     features: features,
   })
   const clusterSource = new Cluster({
-    distance: 40,
+    distance: 300,
     source: source,
   })
 
@@ -62,8 +63,19 @@ function addClusterLayer(data) {
   map.addLayer(clusters)
 }
 
-axios.get('/data/GeoJSON/chemicalEnterprise.json').then((res) => {
-  const data = res.data.data.entList
+// axios.get('/data/GeoJSON/chemicalEnterprise.json').then((res) => {
+
+  axios.get('/data/GeoJSON/musec_mn_protag.json').then((res) => {
+
+  // axios.get('http://10.1.47.189:18091/geoserver/gas/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gas:musec_mn_protag&maxFeatures=100000&outputFormat=application/json').then((res) => {
+
+
+  // debugger
+  const data = res.data.features
+
+
+  console.log(data.length)
+
   addClusterLayer(data)
   registerEvent()
 })
@@ -105,6 +117,8 @@ return getStyle(feature)
 var styleCache = {}
 function getStyle(feature, resolution) {
   var size = feature.get('features').length
+
+  console.log(size,"11")
   var style = styleCache[size]
   if (!style) {
     if (size === 1) {
