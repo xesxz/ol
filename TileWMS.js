@@ -53,7 +53,7 @@ class WmsLayer {
 }
 
 const layers = new WmsLayer(
-  'http://localhost:8080/geoserver/gas/wms',
+  'http://10.1.47.189:18091/geoserver/gas/wms',
   {
     LAYERS: 'gas:Risk_ZH',
   },

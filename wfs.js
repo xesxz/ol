@@ -16,8 +16,10 @@ import { singleClick } from 'ol/events/condition'
 
 import BASEMAP_LAYERS from  "./basemap"
 
-
-
+import proj4 from 'proj4'
+import {
+  register
+} from 'ol/proj/proj4'
 
 
 
@@ -73,15 +75,27 @@ function getStyle(name, feature, scale = 0.7) {
 }
 
 function addWfsLayers() {
-  // const source = new VectorSource({
-  //   url: 'http://10.1.47.189:18091/geoserver/gas/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gas:manhole&maxFeatures=100000&outputFormat=application/json',
-  //   format: new GeoJSON(),
-  // })
+  proj4.defs("EPSG:4544","+proj=tmerc +lat_0=0 +lon_0=105 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs");
+   register(proj4)
+  // var proj4544 = proj4.get('EPSG:4544');
+
+
+
+
+
 
   const source = new VectorSource({
-    url: 'http://localhost:8080/geoserver/gas/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gas:concentrationAlarm&maxFeatures=100000&outputFormat=application/json',
-    format: new GeoJSON(),
+    url: 'http://10.1.47.189:18091/geoserver/gas/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gas:team&maxFeatures=100000&outputFormat=application/json',
+    format: new GeoJSON({
+      dataProjection: 'EPSG:4544', // 元数据的投影坐标
+      featureProjection: 'EPSG:4326' // 规定要素以哪种坐标显示
+    }),
   })
+
+  // const source = new VectorSource({
+  //   url: 'http://10.1.47.189:18091/geoserver/gas/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gas:musec_mn_protag&maxFeatures=100000&outputFormat=application/json',
+  //   format: new GeoJSON(),
+  // })
 
   source.on('featuresloadend', () => {
     let extent = wfsLayer.getSource().getExtent()
@@ -91,9 +105,9 @@ function addWfsLayers() {
   })
   const wfsLayer = new VectorLayer({
     source: source,
-    style: function (feature) {
-      feature.setStyle(getStyle('ndbj', feature))
-    },
+    // style: function (feature) {
+    //   feature.setStyle(getStyle('ndbj', feature))
+    // },
   })
   wfsLayer.set('name','ndbj')
 
@@ -139,7 +153,7 @@ function clickEvent() {
 }
 
 
-/** 
+/**
 * @description:添加图层控制btn
 * @param{void}
 * @return {void}
@@ -154,9 +168,9 @@ function layerControl(){
   btn.onclick = function(){
     map.getAllLayers().forEach(layer => {
       if(layer instanceof  VectorLayer){
-        layer.setVisible(!layer.getVisible())       
+        layer.setVisible(!layer.getVisible())
       }
-   
+
     })
 
   }
