@@ -13,18 +13,44 @@ import GeoJSON from 'ol/format/GeoJSON'
 import { Select } from 'ol/interaction'
 import { pointerMove } from 'ol/events/condition'
 import { singleClick } from 'ol/events/condition'
+import {
+  Tile
+} from "ol/layer";
+// import BASEMAP_LAYERS from  "./basemap"
+import {BaiduMap} from './BaiduMap.js'
 
-import BASEMAP_LAYERS from  "./basemap"
+const baiduSource = new BaiduMap()
+
+
+const baiduLayer = new Tile({
+  source:baiduSource
+})
+
+
+
+
+
+
+
+
 
 const map = new Map({
   target: 'map',
-  layers:BASEMAP_LAYERS,
+  layers: [
+
+  ],
   view: new View({
-    center: [104.22, 30.23],
+    center: [104.06337253910306,30.659861306552347],
     zoom: 10,
     projection: 'EPSG:4326',
   }),
 })
+
+
+map.addLayer(baiduLayer)
+
+
+
 
 
 
